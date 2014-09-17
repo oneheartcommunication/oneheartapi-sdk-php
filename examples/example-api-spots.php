@@ -1,13 +1,18 @@
 <?php
 	include("Oneheart_apiclient.php");
-	$api = new Oneheart_apiclient("", "");
+	$api = new Oneheart_apiclient("test@test.com", "y2B427807W821d23v8Y8 ");
 	
-	// Here we want the user name of the first user
+	// Get the first 10 spots by id
 	$spots = $api->spots->summary(
 		0,
-		50,
-		array("username")
+		10,
+		array("id","name"),
+		"-name"
 	);
-	
-	var_dump($spots);
 ?>
+<p>Here's a list of the 10 firsts spots:</p>
+<ul>
+	<?php foreach($spots as $spot) { ?>
+    <li>#<?php echo $spot["id"]; ?>: <?php echo $spot["name"]; ?></li>
+    <?php } ?>
+</ul>
