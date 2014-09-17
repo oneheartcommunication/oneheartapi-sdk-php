@@ -64,13 +64,14 @@ abstract class APIModule {
 		// Override me =)
 	}
 	
-	public function summary($offset = 0, $max = 10, $fields = NULL) {
+	public function summary($offset = 0, $max = 10, $fields = NULL, $sort = NULL) {
 		$d = array(
 			"offset"=>$offset,
 			"max"=>$max
 		);
 		
 		if($fields) $d["fields"] = implode(",",$fields);
+		if($sort) $d["sort"] = $sort;
 		
 		$response = $this->master->_request($this->ressource, $d);
 		
