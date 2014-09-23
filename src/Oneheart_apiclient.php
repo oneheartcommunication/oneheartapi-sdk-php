@@ -8,7 +8,7 @@ define("OHC_API_METHOD_DELETE", "delete");
 
 class Oneheart_apiclient {
 	
-	public $users, $spots, $client_id, $client_secret, $debug;
+	public $users, $spots, $videos, $client_id, $client_secret, $debug;
 	
 	public function __construct($client_id, $client_secret, $debug = FALSE) {
 		$this->client_id = $client_id;
@@ -16,6 +16,7 @@ class Oneheart_apiclient {
 		$this->debug = $debug;
 		$this->users = new Oneheart_users($this);
 		$this->spots = new Oneheart_spots($this);
+		$this->videos = new Oneheart_videos($this);
 	}
 	
 	public function _request($path, $data = NULL, $method = OHC_API_METHOD_GET) {
@@ -157,6 +158,26 @@ class Oneheart_spots extends APIModule {
 	
 	protected function initialize() {
 		$this->ressource = "spots";
+	}
+	
+}
+
+class Oneheart_videos extends APIModule {
+	
+	protected function initialize() {
+		$this->ressource = "videos";
+	}
+	
+	public function watch($id) {
+		
+		$response = $this->master->_request($this->ressource."/".$id."/watch", NULL, OHC_API_METHOD_POST);
+		
+		if($response["status"] == FALSE) {
+			throw new Exception($response["error"]);
+			return FALSE;
+		}
+		
+		return $response["datas"];
 	}
 	
 }
