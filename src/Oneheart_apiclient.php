@@ -99,6 +99,17 @@ abstract class APIModule {
 		return $response["datas"];
 	}
 	
+	public function submit($datas, $oauth_token) {
+		$response = $this->master->_request($this->ressource."?oauth_token=".$oauth_token, $datas, OHC_API_METHOD_POST);
+		
+		if($response["status"] == FALSE) {
+			throw new Exception($response["error"]);
+			return FALSE;
+		}
+		
+		return $response["datas"];
+	}
+	
 }
 
 class Oneheart_users extends APIModule {
