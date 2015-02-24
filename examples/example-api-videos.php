@@ -1,8 +1,8 @@
 <?php
 	include("Oneheart_apiclient.php");
-	$api = new Oneheart_apiclient("test@test.com", "y2B427807W821d23v8Y8");
+	$api = new Oneheart_apiclient("my@public.key", "my_secret_key");
 	
-	// Get the first 10 spots by id
+	// Get the first 10 videos by id
 	$videos = $api->videos->summary(
 		0,
 		10,

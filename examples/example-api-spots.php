@@ -1,6 +1,6 @@
 <?php
 	include("Oneheart_apiclient.php");
-	$api = new Oneheart_apiclient("test@test.com", "y2B427807W821d23v8Y8 ");
+	$api = new Oneheart_apiclient("my@public.key", "my_secret_key");
 	
 	// Get the first 10 spots by id
 	$spots = $api->spots->summary(
@@ -12,7 +12,7 @@
 ?>
 <p>Here's a list of the 10 firsts spots:</p>
 <ul>
-	<?php foreach($spots as $spot) { ?>
+	<?php foreach($spots["datas"] as $spot) { ?>
     <li>#<?php echo $spot["id"]; ?>: <?php echo $spot["name"]; ?></li>
     <?php } ?>
 </ul>

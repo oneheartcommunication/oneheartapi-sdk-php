@@ -1,9 +1,9 @@
 <?php
 	include("Oneheart_apiclient.php");
-	$api = new Oneheart_apiclient("test@test.com", "y2B427807W821d23v8Y8 ");
+	$api = new Oneheart_apiclient("my@public.key", "my_secret_key");
 	
-	// Here we want the user name of the user #211
-	$user = $api->users->single(211, array("username"));
+	// Here we want the user name of the user #40
+	$url = $api->users->donate(40, "First name", "Last name", "my@email.com", "7 Main street", "00000", "aaa", "France", 1, "EUR", "http://example.com/aaa", "http://example.com/bbb", "http://example.com/ccc");
+	
+	var_dump($url);
 ?>
-
-The user #211 is <?php echo $user["username"] ?>
