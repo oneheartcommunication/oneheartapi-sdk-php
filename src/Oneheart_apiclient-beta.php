@@ -193,7 +193,7 @@ abstract class APIModule {
 	* @param array $datas The datas of the posts. Each post has different fields to submit. Please see the official documentation.
 	* @param string $oauth_token The OAuth token provided from a user accreditation.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#ref
+	* @see http://www.oneheartcommunication.com/docs/api#c1
 	* @see http://www.oneheartcommunication.com/docs/oauth
 	*/
 	
@@ -215,7 +215,7 @@ abstract class APIModule {
 
 /**
 * This class represents the users resource type. You can <u>DONATE</u> to user.
-* @see http://www.oneheartcommunication.com/docs/api#ref
+* @see http://www.oneheartcommunication.com/docs/api#c1
 */
 
 class Oneheart_users extends APIModule {
@@ -247,7 +247,7 @@ class Oneheart_users extends APIModule {
 	* @param string $ping_url The API can ping an URL when the donation is completed.
 	* @param boolean $monthly Set on TRUE if the donation is monthly.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#ref
+	* @see http://www.oneheartcommunication.com/docs/api#c1
 	*/
 	
 	public function donate(
@@ -305,7 +305,7 @@ class Oneheart_users extends APIModule {
 	* @param string $oauth The oauth_token provided by user accreditation.
 	* @param array $fields The fields of the post. By default, each post will return the pair id/name.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#ref
+	* @see http://www.oneheartcommunication.com/docs/api#c1
 	* @see http://www.oneheartcommunication.com/docs/oauth
 	*/
 	
@@ -331,7 +331,7 @@ class Oneheart_users extends APIModule {
 
 /**
 * This class represents the spots resource type.
-* @see http://www.oneheartcommunication.com/docs/api#ref
+* @see http://www.oneheartcommunication.com/docs/api#c1
 */
 
 class Oneheart_spots extends APIModule {
@@ -349,7 +349,7 @@ class Oneheart_spots extends APIModule {
 
 /**
 * This class represents the events resource type.
-* @see http://www.oneheartcommunication.com/docs/api#ref
+* @see http://www.oneheartcommunication.com/docs/api#c1
 */
 
 class Oneheart_events extends APIModule {
@@ -367,7 +367,7 @@ class Oneheart_events extends APIModule {
 
 /**
 * This class represents the videos resource type. You can <u>WATCH</u> a video (captain obvious).
-* @see http://www.oneheartcommunication.com/docs/api#ref
+* @see http://www.oneheartcommunication.com/docs/api#c1
 */
 
 class Oneheart_videos extends APIModule {
@@ -385,7 +385,7 @@ class Oneheart_videos extends APIModule {
 	* Returns some streams URLs for a given video.
 	* @param int $id The ID of the video.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#ref
+	* @see http://www.oneheartcommunication.com/docs/api#c1
 	*/
 	
 	public function watch($id) {
@@ -405,8 +405,8 @@ class Oneheart_videos extends APIModule {
 }
 
 /**
-* TODO
-* @see http://www.oneheartcommunication.com/docs/api#ref
+* This class represents the public insights resource type.
+* @see http://www.oneheartcommunication.com/docs/api#c1
 */
 
 class Oneheart_insights extends APIModule {
@@ -419,7 +419,7 @@ class Oneheart_insights extends APIModule {
 	* @param string $group_by Group by a field. You must chose a field contained in the $fields array.
 	* @param string $sort Sort by a field. You must chose a field contained in the $fields array.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#ref
+	* @see http://www.oneheartcommunication.com/docs/api#c1
 	*/
 	
 	public function get(
