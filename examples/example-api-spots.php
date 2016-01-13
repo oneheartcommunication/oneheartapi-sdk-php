@@ -1,6 +1,6 @@
 <?php
 	include("Oneheart_apiclient.php");
-	$api = new Oneheart_apiclient("my@public.key", "my_secret_key");
+	$api = new Oneheart_apiclient("app_id", "app_secret");
 	
 	// Get the first 10 spots by id
 	$spots = $api->spots->summary(
