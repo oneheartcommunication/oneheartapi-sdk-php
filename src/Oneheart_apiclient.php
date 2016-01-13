@@ -5,7 +5,7 @@
 * @author Teddy Gandon
 */
 
-define("OHC_API_URL", "http://www.oneheartcommunication.com/api/");
+define("OHC_API_URL", "http://www.oneheart.fr/api/");
 define("OHC_API_METHOD_GET", "get");
 define("OHC_API_METHOD_POST", "post");
 define("OHC_API_METHOD_PUT", "put");
@@ -17,13 +17,14 @@ define("OHC_API_METHOD_DELETE", "delete");
 
 class Oneheart_apiclient {
 	
-	public $users, $spots, $videos, $insights, $client_id, $client_secret, $debug;
+	public $users, $spots, $videos, $news, $events, $actions, $client_id, $client_secret, $debug;
 	
 	/**
 	* __construct code.
  	* @param string $client_id The public key access
 	* @param string $client_secret The private key
 	* @param boolean $debug Set on TRUE to see all the requests. DO NOT USE IT IN PRODUCTION ENVIRONMENT!
+	* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 	*/
 	
 	public function __construct($client_id, $client_secret, $debug = FALSE) {
@@ -38,7 +39,9 @@ class Oneheart_apiclient {
 		$this->users = new Oneheart_users($this);
 		$this->spots = new Oneheart_spots($this);
 		$this->videos = new Oneheart_videos($this);
-		$this->insights = new Oneheart_insights($this);
+		$this->news = new Oneheart_news($this);
+		$this->events = new Oneheart_events($this);
+		$this->actions = new Oneheart_actions($this);
 	}
 	
 	/**
@@ -69,7 +72,7 @@ class Oneheart_apiclient {
 		if($method == OHC_API_METHOD_PUT) curl_setopt($c, CURLOPT_PUT, TRUE);
 		if($method == OHC_API_METHOD_DELETE) curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 		
-		// Tell to cURL to return datas
+		// Tell to cURL to return data
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, TRUE);
 		
 		// Set HTTP basic auth with client_id/client_secret
@@ -121,7 +124,7 @@ abstract class APIModule {
 	}
 	
 	/**
-	* Main init function. Override it to set datas.
+	* Main init function. Override it to set data.
 	*/
 	
 	protected function initialize() {
@@ -137,8 +140,8 @@ abstract class APIModule {
 	* @return array
 	*/
 	
-	public function summary($offset = 0, $max = 10, $fields = NULL, $sort = NULL) {
-		// Create basic datas
+	public function summary($offset = 0, $max = 10, $fields = NULL, $sort = NULL, $where = NULL) {
+		// Create basic data
 		$d = array(
 			"offset"=>$offset,
 			"max"=>$max
@@ -150,17 +153,24 @@ abstract class APIModule {
 		// Add sort option
 		if($sort) $d["sort"] = $sort;
 		
+		// Add where option
+		if($where) {
+			foreach($where as $label=>$value) {
+				$d[$label] = $value;
+			}
+		}
+		
 		// Fetch response
 		$response = $this->master->_request($this->resource, $d);
 		
 		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
+		if($response["success"] == FALSE) {
 			throw new Exception($response["error"]);
 			return FALSE;
 		}
 		
-		// Return response datas
-		return $response["datas"];
+		// Return response data
+		return $response["data"];
 	}
 	
 	/**
@@ -179,49 +189,48 @@ abstract class APIModule {
 		$response = $this->master->_request($this->resource."/".$id, $d);
 		
 		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
+		if($response["success"] == FALSE) {
 			throw new Exception($response["error"]);
 			return FALSE;
 		}
 		
-		// Return response datas
-		return $response["datas"];
+		// Return response data
+		return $response["data"];
 	}
 	
 	/**
-	* Submit a post onto the API. You must provide an oauth_token with this method.
-	* @param array $datas The datas of the posts. Each post has different fields to submit. Please see the official documentation.
+	* Register an action on the post. You must provide an oauth_token with this method.
+ 	* @param int $id The ID of the post.
+	* @param string $action_id The ID of the action.
 	* @param string $oauth_token The OAuth token provided from a user accreditation.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#c1
-	* @see http://www.oneheartcommunication.com/docs/oauth
 	*/
 	
-	public function submit($datas, $oauth_token) {
+	public function do_action($id, $action_id, $oauth_token) {
 		// Fetch response
-		$response = $this->master->_request($this->resource."?oauth_token=".$oauth_token, $datas, OHC_API_METHOD_POST);
+		$response = $this->master->_request($this->resource."/".$id."/".$action_id."?oauth_token=".$oauth_token, NULL, OHC_API_METHOD_POST);
 		
 		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
+		if($response["success"] == FALSE) {
 			throw new Exception($response["error"]);
 			return FALSE;
 		}
 		
-		// Return response datas
-		return $response["datas"];
+		// Return response data
+		return $response["data"];
 	}
 	
 }
 
 /**
 * This class represents the users resource type. You can <u>DONATE</u> to user.
-* @see http://www.oneheartcommunication.com/docs/api#c1
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 */
 
 class Oneheart_users extends APIModule {
 	
 	/**
-	* Main init function. Override it to set datas.
+	* Main init function. Override it to set data.
 	* @override
 	*/
 	
@@ -230,83 +239,10 @@ class Oneheart_users extends APIModule {
 	}
 	
 	/**
-	* Donate to a user. This method will return an URL to redirect him.
-	* @param int $id The user ID to donate.
-	* @param string $first_name The first name of the giver.
-	* @param string $last_name The last name of the giver.
-	* @param string $email The email address of the giver.
-	* @param string $address The postal address of the giver.
-	* @param string $zip_code The zip code of the giver.
-	* @param string $city The city of the giver.
-	* @param string $country The country of the giver.
-	* @param int $amount The amout of the donation.
-	* @param string $currency The currency of the donation (only EUR is supported at this time)
-	* @param string $redirect_success The URL where the user is redirected if the donation succeed.
-	* @param string $redirect_fail The URL where the user is redirected if the donation fail.
-	* @param string $redirect_cancel The URL where the user is redirected if the donation is canceled.
-	* @param string $ping_url The API can ping an URL when the donation is completed.
-	* @param boolean $monthly Set on TRUE if the donation is monthly.
-	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#c1
-	*/
-	
-	public function donate(
-		$id, 
-		$first_name, 
-		$last_name, 
-		$email, 
-		$address, 
-		$zip_code, 
-		$city, 
-		$country, 
-		$amount, 
-		$currency, 
-		$redirect_success, 
-		$redirect_fail, 
-		$redirect_cancel, 
-		$ping_url = "", 
-		$monthly = FALSE
-	) {
-		// Build parameters
-		if($monthly === TRUE) $monthly = "true";
-		else $monthly = "false";
-		$d = array(
-			"first_name"=>$first_name,
-			"last_name"=>$last_name, 
-			"email"=>$email, 
-			"address"=>$address, 
-			"zip_code"=>$zip_code, 
-			"city"=>$city, 
-			"country"=>$country, 
-			"amount"=>$amount, 
-			"currency"=>$currency, 
-			"redirect_success"=>$redirect_success, 
-			"redirect_fail"=>$redirect_fail, 
-			"redirect_cancel"=>$redirect_cancel, 
-			"ping_url"=>$ping_url, 
-			"monthly"=>$monthly
-		);
-		
-		// Fetch response
-		$response = $this->master->_request($this->resource."/".$id."/donate", $d, OHC_API_METHOD_POST);
-		
-		// Throw an error if there is an error
-		if($response["status"] === FALSE) {
-			throw new Exception($response["error"]);
-			return FALSE;
-		}
-		
-		// Return response datas
-		return $response["datas"];
-	}
-	
-	/**
 	* Returns a user with an OAuth token.
 	* @param string $oauth The oauth_token provided by user accreditation.
 	* @param array $fields The fields of the post. By default, each post will return the pair id/name.
 	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#c1
-	* @see http://www.oneheartcommunication.com/docs/oauth
 	*/
 	
 	public function me($token, $fields = NULL) {
@@ -315,29 +251,29 @@ class Oneheart_users extends APIModule {
 		if($fields) $d["fields"] = implode(",",$fields);
 		
 		// Fetch response
-		$response = $this->master->_request($this->resource."/me", $d);
+		$response = $this->master->_request("me", $d);
 		
 		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
+		if($response["success"] == FALSE) {
 			throw new Exception($response["error"]);
 			return FALSE;
 		}
 		
-		// Return response datas
-		return $response["datas"];
+		// Return response data
+		return $response["data"];
 	}
 	
 }
 
 /**
 * This class represents the spots resource type.
-* @see http://www.oneheartcommunication.com/docs/api#c1
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 */
 
 class Oneheart_spots extends APIModule {
 	
 	/**
-	* Main init function. Override it to set datas.
+	* Main init function. Override it to set data.
 	* @override
 	*/
 	
@@ -349,13 +285,13 @@ class Oneheart_spots extends APIModule {
 
 /**
 * This class represents the events resource type.
-* @see http://www.oneheartcommunication.com/docs/api#c1
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 */
 
 class Oneheart_events extends APIModule {
 	
 	/**
-	* Main init function. Override it to set datas.
+	* Main init function. Override it to set data.
 	* @override
 	*/
 	
@@ -366,14 +302,14 @@ class Oneheart_events extends APIModule {
 }
 
 /**
-* This class represents the videos resource type. You can <u>WATCH</u> a video (captain obvious).
-* @see http://www.oneheartcommunication.com/docs/api#c1
+* This class represents the videos resource type.
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 */
 
 class Oneheart_videos extends APIModule {
 	
 	/**
-	* Main init function. Override it to set datas.
+	* Main init function. Override it to set data.
 	* @override
 	*/
 	
@@ -381,80 +317,40 @@ class Oneheart_videos extends APIModule {
 		$this->resource = "videos";
 	}
 	
+}
+
+/**
+* This class represents the news resource type.
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
+*/
+
+class Oneheart_news extends APIModule {
+	
 	/**
-	* Returns some streams URLs for a given video.
-	* @param int $id The ID of the video.
-	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#c1
+	* Main init function. Override it to set data.
+	* @override
 	*/
 	
-	public function watch($id) {
-		// Fetch response
-		$response = $this->master->_request($this->resource."/".$id."/watch", NULL, OHC_API_METHOD_POST);
-		
-		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
-			throw new Exception($response["error"]);
-			return FALSE;
-		}
-		
-		// Return response datas
-		return $response["datas"];
+	protected function initialize() {
+		$this->resource = "news";
 	}
 	
 }
 
 /**
-* This class represents the public insights resource type.
-* @see http://www.oneheartcommunication.com/docs/api#c1
+* This class represents the actions resource type.
+* @see https://oneheart.zendesk.com/hc/fr/articles/204933641-API
 */
 
-class Oneheart_insights extends APIModule {
+class Oneheart_actions extends APIModule {
 	
 	/**
-	* Returns global insights from One Heart platform
-	* @param string $oauth_token A valid oauth_token
-	* @param array $types The stats types to return. Can contains: "spots:app", "spots:widget", "videos:widget", "donation:widget"
-	* @param array $fields The fields to return for the query. You can return: "analytics.users", "analytics.newUsers", "analytics.pageviews", "analytics.uniquePageviews", "analytics.date", "user.theme", "post.theme", "post.date"
-	* @param string $group_by Group by a field. You must chose a field contained in the $fields array.
-	* @param string $sort Sort by a field. You must chose a field contained in the $fields array.
-	* @return array
-	* @see http://www.oneheartcommunication.com/docs/api#c1
+	* Main init function. Override it to set data.
+	* @override
 	*/
 	
-	public function get(
-	  $oauth_token, 
-	  $types, 
-	  $fields, 
-	  $group_by, 
-	  $sort = NULL
-	) {
-		
-		// Build request
-		$datas = array(
-			"oauth_token"=>$oauth_token,
-			"types"=>implode(",", $types),
-			"fields"=>implode(",", $fields),
-			"group_by"=>$group_by,
-			"sort"=>$sort
-		);
-		
-		// Fetch response
-		$response = $this->master->_request("insights/", $datas, OHC_API_METHOD_GET);
-		
-		// Throw an error if there is an error
-		if($response["status"] == FALSE) {
-			throw new Exception($response["error"]);
-			return FALSE;
-		}
-		
-		// Trigger a warning
-		if(isset($response["warning"])) {
-			trigger_error($response["warning"]);
-		}
-		
-		// Return response datas
-		return $response["datas"];
+	protected function initialize() {
+		$this->resource = "actions";
 	}
 	
 }
