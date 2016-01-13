@@ -2,6 +2,6 @@ oneheartapi-sdk-php
 ===================
 This SDK is the fastest way to develop applications with the One Heart API.
 
-You'll need an API Key in order to use it (http://www.oneheartcommunication.com/backoffice/developers/create-key)
+You'll need an app with an API key in order to use it (http://www.oneheart.fr/developers/)
 
-More informations on http://www.oneheartcommunication.com/
+More informations on http://www.oneheart.fr/
